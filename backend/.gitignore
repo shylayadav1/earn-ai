@@ -3,4 +3,8 @@ venv/
 node_modules/
 .DS_Store
 __pycache__/
-dist/
+
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local

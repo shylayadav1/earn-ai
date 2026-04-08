@@ -5,10 +5,15 @@ from pydantic import BaseModel
 from google import genai
 from dotenv import load_dotenv
 
-load_dotenv() 
+load_dotenv()
 
-# Ensure your .env has GOOGLE_API_KEY=your_key
+# Load the backend-only API key from a secure .env file.
+# Do not expose this value in frontend/.env or in browser code.
 api_key = os.getenv("GOOGLE_API_KEY")
+if not api_key:
+    raise RuntimeError(
+        "Missing API key. Set GOOGLE_API_KEY in backend/.env and do not commit it."
+    )
 
 # Initialize the Gemini Client
 client = genai.Client(api_key=api_key)
@@ -18,9 +23,9 @@ app = FastAPI()
 # CORS is essential for your React frontend to talk to this Python backend
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"], # In production, replace with your Vercel URL
+    allow_origins=["http://localhost:5173"], # Local dev frontend origin; replace with production URL later
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["GET", "POST"],
     allow_headers=["*"],
 )
 
@@ -36,7 +41,7 @@ async def ask_earn(request: FinanceRequest):
     try:
         # Fixed model name to 1.5-flash (or 2.0-flash if available)
         response = client.models.generate_content(
-            model='gemini-1.5-flash', 
+            model='gemini-2.5-flash', 
             contents=f"You are a student finance expert. Answer this: {request.prompt}"
         )
         
