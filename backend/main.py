@@ -5,16 +5,12 @@ from pydantic import BaseModel
 from google import genai
 from dotenv import load_dotenv
 
-# 1. Load the secret variables from the .env file
-load_dotenv()
+load_dotenv() #key in env file 
 api_key = os.getenv("GOOGLE_API_KEY")
 
-# 2. Pass the variable into the client instead of the raw string
-client = genai.Client(api_key=api_key)
+client = genai.Client(api_key=api_key) #pass the API key to the Gemini client
 
 app = FastAPI()
-
-# ... (the rest of your code stays exactly the same) ...
 
 app.add_middleware(
     CORSMiddleware,
