@@ -5,16 +5,21 @@ from pydantic import BaseModel
 from google import genai
 from dotenv import load_dotenv
 
-load_dotenv() #key in env file 
+load_dotenv() 
+
+# Ensure your .env has GOOGLE_API_KEY=your_key
 api_key = os.getenv("GOOGLE_API_KEY")
 
-client = genai.Client(api_key=api_key) #pass the API key to the Gemini client
+# Initialize the Gemini Client
+client = genai.Client(api_key=api_key)
 
 app = FastAPI()
 
+# CORS is essential for your React frontend to talk to this Python backend
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["*"], # In production, replace with your Vercel URL
+    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -24,24 +29,26 @@ class FinanceRequest(BaseModel):
 
 @app.get("/")
 def read_root():
-    return {"message": "Earn AI is Online"}
+    return {"message": "Earn AI Backend is Online"}
 
 @app.post("/ask")
 async def ask_earn(request: FinanceRequest):
     try:
-        # 3. Call Gemini using the NEW format
+        # Fixed model name to 1.5-flash (or 2.0-flash if available)
         response = client.models.generate_content(
-            model='gemini-2.5-flash',
+            model='gemini-1.5-flash', 
             contents=f"You are a student finance expert. Answer this: {request.prompt}"
         )
         
-        print(f"Success! Sent response for: {request.prompt[:20]}...")
+        # The SDK returns a response object where .text contains the string
         return {"reply": response.text}
 
     except Exception as e:
         print(f"PYTHON ERROR: {str(e)}")
-        return {"reply": f"AI Error: {str(e)}"}
+        # Raise a proper 500 error so the frontend knows something went wrong
+        raise HTTPException(status_code=500, detail=str(e))
 
 if __name__ == "__main__":
     import uvicorn
+    # Changed port to 8001 as per your requirement
     uvicorn.run(app, host="0.0.0.0", port=8001)

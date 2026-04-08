@@ -1,4 +1,4 @@
-.env #secret key
+backend/*
 venv/
 node_modules/
 .DS_Store
