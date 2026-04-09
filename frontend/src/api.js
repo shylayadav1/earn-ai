@@ -1,6 +1,6 @@
 // frontend/src/services/api.js
 
-const API_URL = "http://localhost:8001"; // Your FastAPI address
+const API_URL = "http://localhost:8001"; 
 
 export const askEarnAI = async (userPrompt) => {
   try {
@@ -17,7 +17,7 @@ export const askEarnAI = async (userPrompt) => {
     }
 
     const data = await response.json();
-    return data.reply; // This matches the {"reply": ...} from your Python code
+    return data.reply;
   } catch (error) {
     console.error("Error calling Earn AI Backend:", error);
     return "Sorry, I'm having trouble connecting to the server.";
