@@ -23,8 +23,7 @@ app = FastAPI()
 # CORS is essential for your React frontend to talk to this Python backend
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"], # Local dev frontend origin; replace with production URL later
-    allow_credentials=True,
+    allow_origins=["http://localhost:5173"], # NEED TO REPLACE WITH VERCEL url when deployed
     allow_methods=["GET", "POST"],
     allow_headers=["*"],
 )

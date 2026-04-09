@@ -27,7 +27,7 @@ function App() {
       // 2. Handle the response based on what your Python 'return' says
       // If Python returns {"answer": "..."}, use data.answer
       setResponse(data.reply || "AI connected, but no text in response.");
-       
+      
     } catch (error) {
       console.error("Fetch error:", error);
       setResponse("Error: Backend not reachable. Check if 'python main.py' is running on port 8001.");
