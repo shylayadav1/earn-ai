@@ -9,7 +9,7 @@ Earn AI is an agentic **Retrieval-Augmented Generation (RAG)** system designed t
 * **Robust Retrieval**: Implements a keyword-intersection search algorithm to handle messy PDF table extractions and formatting.
 * **Stateful Memory**: Maintains a dynamic conversation history to support complex, multi-step financial inquiries.
 
-## ech Stack
+## Tech Stack
 
 * **Frontend**: React (Modern, Minimalist FinTech UI)
 * **Backend**: FastAPI (Python)
