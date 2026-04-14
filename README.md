@@ -13,7 +13,7 @@ Earn AI is an agentic **Retrieval-Augmented Generation (RAG)** system designed t
 
 * **Frontend**: React (Modern, Minimalist FinTech UI)
 * **Backend**: FastAPI (Python)
-* **AI Model**: Google Gemini 1.5 Flash
+* **AI Model**: Google Gemini 2.5 Flash
 * **Data Processing**: PyPDF2
 * **Protocol**: Inspired by Model Context Protocol (MCP)
 
