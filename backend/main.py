@@ -55,7 +55,7 @@ GEMINI_TOOLS = [
                     "properties": {
                         "query": {
                             "type": "string",
-                            "description": "Search term (e.g., 'part-time Indiana resident', 'general service fee')",
+                            "description": "Search term CRITICAL: Use only 1 or 2 essential keywords (e.g. search 'general service' instead of 'general service fee') to accommodate PDF formatting.",
                         }
                     },
                     "required": ["query"],
