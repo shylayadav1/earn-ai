@@ -15,31 +15,30 @@ function App() {
     scrollToBottom()
   }, [messages])
 
-  const askEarn = async (e) => {
-    if (e) e.preventDefault();
-    if (!query.trim()) return;
+  const handleAsk = async (e) => {
+    e.preventDefault()
+    if (!query.trim()) return
 
-    const userMessage = query;
+    const userMessage = query
     setQuery('')
     setMessages(prev => [...prev, { type: 'user', text: userMessage }])
     setLoading(true)
 
     try {
-      const res = await fetch("http://localhost:8001/ask", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+      const res = await fetch('http://localhost:8001/ask', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ prompt: userMessage }),
-      });
+      })
 
-      const data = await res.json();
-      const aiResponse = data.reply || "AI connected, but no text in response.";
+      const data = await res.json()
+      const aiResponse = data.reply || 'No response received.'
       setMessages(prev => [...prev, { type: 'ai', text: aiResponse }])
-
     } catch (error) {
-      console.error("Fetch error:", error);
+      console.error('Fetch error:', error)
       setMessages(prev => [...prev, {
         type: 'ai',
-        text: "Error: Backend not reachable. Check if 'python main.py' is running on port 8001."
+        text: 'Connection error. Ensure the backend is running on port 8001.',
       }])
     } finally {
       setLoading(false)
@@ -49,79 +48,129 @@ function App() {
   const handleQuickPrompt = (prompt) => {
     setQuery(prompt)
     setTimeout(() => {
-      const form = document.querySelector('.chat-input-area')
-      form?.dispatchEvent(new Event('submit', { bubbles: true }))
+      document.querySelector('form')?.dispatchEvent(new Event('submit', { bubbles: true }))
     }, 50)
   }
 
   return (
-    <div className="chat-container">
-      <div className="chat-header">
-        <div className="header-content">
-          <h1 className="header-title">Earn AI</h1>
-          <p className="header-subtitle">Your Personal Wealth Architect | Purdue Edition</p>
+    <div className="min-h-screen bg-zen-dark text-zen-text flex flex-col">
+      {/* Header */}
+      <header className="border-b border-zen-light/20 py-8 px-6">
+        <div className="max-w-2xl mx-auto text-center">
+          <h1 className="text-3xl font-medium tracking-tight mb-2">Earn AI</h1>
+          <p className="text-sm text-zen-muted font-light">Your personal wealth architect. Focused on your future.</p>
+        </div>
+      </header>
+
+      {/* Main Chat Area */}
+      <div className="flex-1 flex flex-col">
+        <div className="flex-1 overflow-y-auto px-6 py-8">
+          <div className="max-w-2xl mx-auto">
+            {/* Empty State */}
+            {messages.length === 0 && !loading && (
+              <div className="flex flex-col items-center justify-center min-h-96 text-center">
+                <div className="mb-8">
+                  <div className="text-5xl mb-6 opacity-40">💭</div>
+                  <h2 className="text-xl font-light mb-3 text-zen-text">What's on your mind?</h2>
+                  <p className="text-sm text-zen-muted max-w-sm">
+                    Ask me anything about building wealth, managing your finances, or planning your future.
+                  </p>
+                </div>
+
+                {/* Suggested Prompts */}
+                <div className="w-full mt-8 space-y-3">
+                  <button
+                    onClick={() => handleQuickPrompt('Building a Roth IRA as a student')}
+                    className="w-full p-3 text-left text-sm glass-dark rounded-lg hover:bg-zen-light/20 transition-gentle text-zen-text"
+                  >
+                    <span className="font-medium">Building a Roth IRA as a student</span>
+                  </button>
+                  <button
+                    onClick={() => handleQuickPrompt('Managing expenses at Purdue')}
+                    className="w-full p-3 text-left text-sm glass-dark rounded-lg hover:bg-zen-light/20 transition-gentle text-zen-text"
+                  >
+                    <span className="font-medium">Managing expenses at Purdue</span>
+                  </button>
+                  <button
+                    onClick={() => handleQuickPrompt('Long-term investment strategies')}
+                    className="w-full p-3 text-left text-sm glass-dark rounded-lg hover:bg-zen-light/20 transition-gentle text-zen-text"
+                  >
+                    <span className="font-medium">Long-term investment strategies</span>
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Messages */}
+            <div className="space-y-4">
+              {messages.map((msg, idx) => (
+                <div
+                  key={idx}
+                  className={`flex gap-3 ${msg.type === 'user' ? 'justify-end' : 'justify-start'}`}
+                >
+                  {msg.type === 'ai' && (
+                    <div className="w-6 h-6 rounded-full bg-zen-purple/10 flex items-center justify-center flex-shrink-0 mt-1">
+                      <span className="text-xs">AI</span>
+                    </div>
+                  )}
+                  <div
+                    className={`max-w-xl px-4 py-3 rounded-lg text-sm leading-relaxed ${
+                      msg.type === 'user'
+                        ? 'bg-purdue-gold/20 text-zen-text border border-purdue-gold/30'
+                        : 'glass-dark text-zen-text'
+                    }`}
+                  >
+                    {msg.text}
+                  </div>
+                </div>
+              ))}
+
+              {/* Loading State */}
+              {loading && (
+                <div className="flex gap-3 justify-start">
+                  <div className="w-6 h-6 rounded-full bg-zen-purple/10 flex items-center justify-center flex-shrink-0 mt-1">
+                    <span className="text-xs">AI</span>
+                  </div>
+                  <div className="glass-dark px-4 py-3 rounded-lg">
+                    <div className="flex gap-2">
+                      <div className="w-2 h-2 bg-zen-purple rounded-full animate-pulse"></div>
+                      <div className="w-2 h-2 bg-zen-purple rounded-full animate-pulse delay-100"></div>
+                      <div className="w-2 h-2 bg-zen-purple rounded-full animate-pulse delay-200"></div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              <div ref={messagesEndRef} />
+            </div>
+          </div>
+        </div>
+
+        {/* Input Area */}
+        <div className="border-t border-zen-light/20 px-6 py-6 bg-gradient-subtle">
+          <form onSubmit={handleAsk} className="max-w-2xl mx-auto">
+            <div className="flex gap-3">
+              <input
+                type="text"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                disabled={loading}
+                placeholder="Ask anything about your finances..."
+                className="flex-1 bg-zen-gray/50 border border-zen-light/30 rounded-full px-5 py-3 text-sm text-zen-text placeholder-zen-muted/50 focus-ring transition-gentle disabled:opacity-50"
+              />
+              <button
+                type="submit"
+                disabled={loading || !query.trim()}
+                className="px-6 py-3 bg-zen-light/40 hover:bg-zen-light/60 border border-zen-light/40 rounded-full text-sm font-medium text-zen-text transition-gentle disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {loading ? '...' : 'Send'}
+              </button>
+            </div>
+          </form>
         </div>
       </div>
-
-      <div className="chat-messages">
-        {messages.length === 0 && (
-          <div className="empty-state">
-            <div className="empty-icon">💰</div>
-            <h2>Build Your Wealth, Boilermaker</h2>
-            <p>Master personal finance with AI designed for Purdue students. From Roth IRAs to investment strategies, let's build your financial future.</p>
-            <div className="suggested-prompts">
-              <button className="prompt-btn" onClick={() => handleQuickPrompt('What should I know about Roth IRAs?')}>💡 Understanding Roth IRAs</button>
-              <button className="prompt-btn" onClick={() => handleQuickPrompt('How can I create a realistic budget as a student?')}>📊 Student Budgeting 101</button>
-              <button className="prompt-btn" onClick={() => handleQuickPrompt('What are the best investment strategies for beginners?')}>📈 Smart Investing for Beginners</button>
-            </div>
-          </div>
-        )}
-
-        {messages.map((msg, idx) => (
-          <div key={idx} className={`message message-${msg.type}`}>
-            <div className="message-avatar">
-              {msg.type === 'user' ? '👤' : '🤖'}
-            </div>
-            <div className="message-bubble">
-              {msg.text}
-            </div>
-          </div>
-        ))}
-
-        {loading && (
-          <div className="message message-ai">
-            <div className="message-avatar">🤖</div>
-            <div className="message-bubble loading">
-              <span className="dot"></span>
-              <span className="dot"></span>
-              <span className="dot"></span>
-            </div>
-          </div>
-        )}
-
-        <div ref={messagesEndRef} />
-      </div>
-
-      <form className="chat-input-area" onSubmit={askEarn}>
-        <input
-          type="text"
-          placeholder="Ask about Purdue financial aid, budgeting, or investing..."
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          disabled={loading}
-          className="chat-input"
-        />
-        <button
-          type="submit"
-          disabled={loading || !query.trim()}
-          className="chat-button"
-        >
-          {loading ? '⏳' : '➤'}
-        </button>
-      </form>
     </div>
   )
 }
 
 export default App
-
