@@ -1,92 +1,124 @@
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import './App.css'
 
 function App() {
   const [query, setQuery] = useState('')
-  const [response, setResponse] = useState('')
+  const [messages, setMessages] = useState([])
   const [loading, setLoading] = useState(false)
+  const messagesEndRef = useRef(null)
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }
+
+  useEffect(() => {
+    scrollToBottom()
+  }, [messages])
 
   const askEarn = async (e) => {
-    // 1. Prevent any accidental form refreshes
     if (e) e.preventDefault();
-    if (!query) return;
+    if (!query.trim()) return;
 
+    const userMessage = query;
+    setQuery('')
+    setMessages(prev => [...prev, { type: 'user', text: userMessage }])
     setLoading(true)
-    setResponse('') // Clear previous advice
 
     try {
       const res = await fetch("http://localhost:8001/ask", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        // IMPORTANT: Make sure this key "prompt" matches your Python Item class!
-        body: JSON.stringify({ prompt: query }), 
+        body: JSON.stringify({ prompt: userMessage }),
       });
 
       const data = await res.json();
-      
-      // 2. Handle the response based on what your Python 'return' says
-      // If Python returns {"answer": "..."}, use data.answer
-      setResponse(data.reply || "AI connected, but no text in response.");
-      
+      const aiResponse = data.reply || "AI connected, but no text in response.";
+      setMessages(prev => [...prev, { type: 'ai', text: aiResponse }])
+
     } catch (error) {
       console.error("Fetch error:", error);
-      setResponse("Error: Backend not reachable. Check if 'python main.py' is running on port 8001.");
+      setMessages(prev => [...prev, {
+        type: 'ai',
+        text: "Error: Backend not reachable. Check if 'python main.py' is running on port 8001."
+      }])
     } finally {
       setLoading(false)
     }
   }
 
+  const handleQuickPrompt = (prompt) => {
+    setQuery(prompt)
+    setTimeout(() => {
+      const form = document.querySelector('.chat-input-area')
+      form?.dispatchEvent(new Event('submit', { bubbles: true }))
+    }, 50)
+  }
+
   return (
-    <div className="App" style={{ fontFamily: 'Arial, sans-serif', textAlign: 'center', padding: '50px' }}>
-      <header>
-        <h1 style={{ color: '#2ecc71', fontSize: '2.5rem' }}>Earn AI</h1>
-        <p style={{ color: '#7f8c8d' }}>Your Purdue Student Wealth Architect</p>
-      </header>
-      
-      <div className="card" style={{ marginTop: '30px' }}>
-        <input 
-          type="text" 
-          placeholder="Ask about Roth IRAs or budgeting..." 
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          onKeyDown={(e) => e.key === 'Enter' && askEarn()} // Allow pressing Enter
-          style={{ padding: '12px', width: '350px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '16px' }}
-        />
-        <button 
-          onClick={askEarn} 
-          disabled={loading}
-          style={{
-            marginLeft: '10px', 
-            padding: '12px 25px', 
-            backgroundColor: loading ? '#95a5a6' : '#2ecc71', 
-            color: 'white', 
-            border: 'none', 
-            borderRadius: '8px', 
-            cursor: 'pointer',
-            fontSize: '16px',
-            fontWeight: 'bold'
-          }}
-        >
-          {loading ? 'Analyzing...' : 'Get Advice'}
-        </button>
+    <div className="chat-container">
+      <div className="chat-header">
+        <div className="header-content">
+          <h1 className="header-title">Earn AI</h1>
+          <p className="header-subtitle">Your Personal Wealth Architect | Purdue Edition</p>
+        </div>
       </div>
 
-      {response && (
-        <div style={{
-          marginTop: '40px', 
-          padding: '25px', 
-          background: '#ffffff', 
-          boxShadow: '0 4px 6px rgba(0,0,0,0.1)', 
-          borderRadius: '12px', 
-          textAlign: 'left', 
-          maxWidth: '600px', 
-          margin: '40px auto',
-          borderLeft: '5px solid #2ecc71'
-        }}>
-          <strong style={{ color: '#27ae60', display: 'block', marginBottom: '10px' }}>Earn AI Advice:</strong>
-          <p style={{ lineHeight: '1.6', color: '#2c3e50' }}>{response}</p>
-        </div>
-      )}
+      <div className="chat-messages">
+        {messages.length === 0 && (
+          <div className="empty-state">
+            <div className="empty-icon">💰</div>
+            <h2>Build Your Wealth, Boilermaker</h2>
+            <p>Master personal finance with AI designed for Purdue students. From Roth IRAs to investment strategies, let's build your financial future.</p>
+            <div className="suggested-prompts">
+              <button className="prompt-btn" onClick={() => handleQuickPrompt('What should I know about Roth IRAs?')}>💡 Understanding Roth IRAs</button>
+              <button className="prompt-btn" onClick={() => handleQuickPrompt('How can I create a realistic budget as a student?')}>📊 Student Budgeting 101</button>
+              <button className="prompt-btn" onClick={() => handleQuickPrompt('What are the best investment strategies for beginners?')}>📈 Smart Investing for Beginners</button>
+            </div>
+          </div>
+        )}
+
+        {messages.map((msg, idx) => (
+          <div key={idx} className={`message message-${msg.type}`}>
+            <div className="message-avatar">
+              {msg.type === 'user' ? '👤' : '🤖'}
+            </div>
+            <div className="message-bubble">
+              {msg.text}
+            </div>
+          </div>
+        ))}
+
+        {loading && (
+          <div className="message message-ai">
+            <div className="message-avatar">🤖</div>
+            <div className="message-bubble loading">
+              <span className="dot"></span>
+              <span className="dot"></span>
+              <span className="dot"></span>
+            </div>
+          </div>
+        )}
+
+        <div ref={messagesEndRef} />
+      </div>
+
+      <form className="chat-input-area" onSubmit={askEarn}>
+        <input
+          type="text"
+          placeholder="Ask about Purdue financial aid, budgeting, or investing..."
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          disabled={loading}
+          className="chat-input"
+        />
+        <button
+          type="submit"
+          disabled={loading || !query.trim()}
+          className="chat-button"
+        >
+          {loading ? '⏳' : '➤'}
+        </button>
+      </form>
     </div>
   )
 }
