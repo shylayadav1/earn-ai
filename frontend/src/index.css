@@ -1,13 +1,14 @@
 :root {
-
   --bg: #FBFBFD;          
   --text: #424245;      
   --text-h: #1d1d1f;    
   --border: rgba(0, 0, 0, 0.08); 
-  --code-bg: #5050eb;
-  --accent: #aa3bff;   
-  --accent-bg: rgba(170, 59, 255, 0.08);
-  --accent-border: rgba(170, 59, 255, 0.2);
+  --code-bg: #1d1d1f;
+  
+  /* Purdue Gold Accents */
+  --accent: #CEB888;   
+  --accent-bg: rgba(206, 184, 136, 0.1);
+  --accent-border: rgba(206, 184, 136, 0.3);
   --shadow: 0 8px 30px rgba(0, 0, 0, 0.04), 0 4px 8px rgba(0, 0, 0, 0.06);
 
   --sans: "Inter", -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif;
@@ -34,8 +35,11 @@
     --text-h: #f5f5f7; 
     --border: rgba(255, 255, 255, 0.14);
     --code-bg: #1d1d1f;
-    --accent: #c084fc;     
-    --accent-bg: rgba(192, 132, 252, 0.15);
+    
+    /* Keep Purdue Gold for Dark Mode */
+    --accent: #CEB888;     
+    --accent-bg: rgba(206, 184, 136, 0.15);
+    --accent-border: rgba(206, 184, 136, 0.3);
     --shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
   }
 }
@@ -43,22 +47,22 @@
 body {
   margin: 0;
   padding: 0;
-  overflow-x: hidden;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden; /* Locks the body so only the chat scrolls, like a real web app */
 }
 
 #root {
   width: 100%;
-  max-width: 1000px;      /* Optimal reading width for a chatbot */
-  margin: 0 auto;
-  min-height: 100svh;
+  height: 100%;
+  /* Flex row prepares the root to hold a sidebar on the left and chat on the right */
   display: flex;
-  flex-direction: column;
+  flex-direction: row; 
   box-sizing: border-box;
-  padding: 0 30px;       
   transition: background 0.3s ease;
 }
 
-
+/* Typography */
 h1, h2, h3 {
   font-family: var(--sans);
   font-weight: 600;
@@ -69,7 +73,7 @@ h1, h2, h3 {
 h1 {
   font-size: 48px;
   margin: 64px 0 24px;
-  text-align: middle;       
+  text-align: center;       
   @media (max-width: 1024px) {
     font-size: 32px;
   }
@@ -85,7 +89,7 @@ p {
   line-height: 1.6;
 }
 
-
+/* Components */
 .glass-card {
   background: rgba(255, 255, 255, 0.7);
   backdrop-filter: blur(20px);
@@ -102,7 +106,6 @@ p {
   }
 }
 
-
 code {
   font-family: var(--mono);
   font-size: 0.9em;
@@ -112,13 +115,12 @@ code {
   color: var(--accent);
 }
 
-
 input, button {
   font-family: inherit;
   font-size: inherit;
 }
 
-
+/* Custom Scrollbars */
 ::-webkit-scrollbar {
   width: 8px;
 }
